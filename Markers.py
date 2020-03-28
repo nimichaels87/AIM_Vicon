@@ -43,7 +43,8 @@
 # */
 # //==============================================================================
 
-import lib.GaitCore.Core as core
+import lib.GaitCore.Core as core # !!!!!! THIS DOESN"T WORK !!!!!!
+from lib.GaitCore.Core.Point import Point
 import numpy as np
 from scipy.optimize import minimize
 import math
@@ -161,7 +162,6 @@ class Markers(object):
 
 
     def set_ground_plane(self, rigid_body, offset_height=14):
-
         markers = self.get_rigid_body("marker_names")
         fit, residual = fit_to_plane(markers)
 
@@ -368,6 +368,56 @@ class Markers(object):
         self._ax.scatter(x[frame], y[frame], z[frame], c='r', marker='o')
         if len(centers) > 0:
             self._ax.scatter(centers[frame][0], centers[frame][1], centers[frame][2], c='g', marker='o')
+
+    def mocapLinearFit_Arrays(self, markerName, timeMag):
+        """
+        :param markerName: String containing the name of the marker used
+        :param timeMag: the "time-magnitude" used for the linear regression fit
+        :return: 3 Lists containing Linear-Fitted values of the X, Y, & Z coordinates
+        """
+        mkr = self.get_marker(markerName)
+        newMKRx = []
+        newMKRy = []
+        newMKRz = []
+        mocapBoxNum = ((len(mkr)) / timeMag) + 1
+        for j in range(1, mocapBoxNum + 1):
+            strtJter = (j - 1) * timeMag
+            if j < mocapBoxNum:
+                endJter = j * timeMag
+            else:
+                endJter = len(mkr) - 1
+            tmpXList = [];
+            tmpYList = [];
+            tmpZList = [];
+            for k in range(strtJter, endJter):
+                tmpXList.append(float(mkr[k].x))
+                tmpYList.append(float(mkr[k].y))
+                tmpZList.append(float(mkr[k].z))
+            newMKRx.append(np.mean(tmpXList))
+            newMKRy.append(np.mean(tmpYList))
+            newMKRz.append(np.mean(tmpZList))
+        return [newMKRx, newMKRy, newMKRz]
+
+    def mocapLinearFit_PointCore(self, markerName, timeMag):
+        mkr = self.get_marker(markerName)
+        fittedMKR = []
+        mocapBoxNum = ((len(mkr)) / timeMag) + 1
+        for j in range(1, mocapBoxNum + 1):
+            strtJter = (j - 1) * timeMag
+            if j < mocapBoxNum:
+                endJter = j * timeMag
+            else:
+                endJter = len(mkr) - 1
+            tmpXList = [];
+            tmpYList = [];
+            tmpZList = [];
+            for k in range(strtJter, endJter):
+                tmpXList.append(float(mkr[k].x))
+                tmpYList.append(float(mkr[k].y))
+                tmpZList.append(float(mkr[k].z))
+            mkrPnt = Point(np.mean(tmpXList), np.mean(tmpYList), np.mean(tmpZList))
+            fittedMKR.append(mkrPnt)
+        return fittedMKR
 
 
 def transform_markers(transforms, markers):
@@ -854,6 +904,7 @@ def fit_to_plane(points):
     residual = np.linalg.norm(errors)
     fit = unit_vector(fit)
     return fit, residual
+
 
 
 if __name__ == '__main__':
