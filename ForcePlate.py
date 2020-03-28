@@ -47,6 +47,7 @@
 import Devices
 from lib.GaitCore.Core.Point import Point
 from lib.GaitCore.Core.Newton import Newton
+import numpy as np
 
 class ForcePlate(Devices.Devices):
 
@@ -80,3 +81,30 @@ class ForcePlate(Devices.Devices):
         :rtype: Point
         """
         return self._sensor.angle
+
+    def get_CoP_LinearRegressionFit(self, timeMag):
+        """
+        Uses a Linear-Regression Fit to get a reduced list of CoP values
+        :param timeMag:
+        :return:
+        """
+        CoPList = self.get_CoP()
+        fPlateBoxNum = ((len(CoPList.x)) / timeMag) + 1
+        avgFCoP_X = []
+        avgFCoP_Y = []
+        avgFCoP_Z = []
+        for i in range(1, fPlateBoxNum + 1):
+            strtIter = (i - 1) * timeMag
+            if i < fPlateBoxNum:
+                endIter = i * timeMag
+            else:
+                endIter = len(CoPList.x) - 1
+                #print(endIter)
+            tmpListX = CoPList.x[strtIter:endIter]
+            tmpListY = CoPList.y[strtIter:endIter]
+            tmpListZ = CoPList.z[strtIter:endIter]
+            avgFCoP_X.append(np.mean(tmpListX))
+            avgFCoP_Y.append(np.mean(tmpListY))
+            avgFCoP_Z.append(np.mean(tmpListZ))
+        return [avgFCoP_X, avgFCoP_Y, avgFCoP_Z]
+
