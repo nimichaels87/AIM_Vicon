@@ -300,6 +300,9 @@ class Vicon(object):
     def _make_markers(self):
         markers = self.data_dict["Trajectories"]
 
+
+
+
     def _make_EMGs(self):
         """
         generate EMG models
