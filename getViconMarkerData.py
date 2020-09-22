@@ -2,8 +2,9 @@ import Vicon
 import numpy as np
 
 if __name__ == '__main__':
-    file = "/home/asus/Desktop/AFO Mocap Test - Force Plate Data/nathan_foot/test1/220200/new_AFO_design_Mocap_test1.csv"
-    #file = "/home/asus/Desktop/AFO Mocap Test - Force Plate Data/nathan_foot/test1/220200/new_AFO_design_Mocap_test3.csv"
+    #file = "/home/asus/Desktop/AFO Mocap Test - Force Plate Data/nathan_foot/test1/220200/old_AFO_design_Mocap_test1.csv"
+    #file = "/home/asus/Desktop/AFO Mocap Test - Force Plate Data/nathan_foot/test1/220200/new_AFO_design_Mocap_test1.csv"
+    file = "/home/asus/Desktop/AFO Mocap Test - Force Plate Data/nathan_foot/test1/220200/new_AFO_design_Mocap_test3.csv"
     data = Vicon.Vicon(file)
     markers = data.get_markers()
     mkr1 = data.get_markers().get_marker("nathan_Rfoot1")
@@ -34,6 +35,7 @@ if __name__ == '__main__':
     print(mkr3[1].z)
     markers.smart_sort() # sort the markers into bodies by the names
     markers.play()
+
 
     # mkr1 = data.get_markers().get_marker("nathan_Rfoot1")
     # mkr2 = data.get_markers().get_marker("nathan_Rfoot2")
@@ -71,4 +73,3 @@ if __name__ == '__main__':
 
     #[mkr3_X, mkr3_Y, mkr3_Z] = data.get_markers().mocapLinearFit("nathan_Rfoot3", 100)
     #print(mkr3_X)
-

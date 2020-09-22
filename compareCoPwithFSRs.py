@@ -7,8 +7,8 @@ from lib.GaitCore.Core.Point import Point
 
 
 if __name__ == "__main__":
-    fsrFile = "/home/asus/Desktop/AFO Mocap Test - FSR Data/newAFODesignMocapTest3.csv"
-    forceAndViconFile = "/home/asus/Desktop/AFO Mocap Test - Force Plate Data/nathan_foot/test1/220200/new_AFO_design_Mocap_test3.csv"
+    fsrFile = "/home/asus/Desktop/AFO Mocap Test - FSR Data/newAFODesignMocapTest1.csv"
+    forceAndViconFile = "/home/asus/Desktop/AFO Mocap Test - Force Plate Data/nathan_foot/test1/220200/new_AFO_design_Mocap_test1.csv"
 
     ### Get Vicon Marker and Force-Plate Data
     viconData = Vicon.Vicon(forceAndViconFile)
@@ -33,12 +33,15 @@ if __name__ == "__main__":
 
     ### Initialize FSR data object
     fsrData = FSR.FSR(fsrFile)
-    fsrCoP = fsrData.get_CoP_List()
+    fsrCoP = fsrData.get_local_CoP_List()
+
+    ### DEBUG - Use Mocap Marker Position data to calculate the AFO CoP
+    fsrMkrCoP = fsrData.get_CoP_from_Markers(mkr1, mkr2, mkr3)
 
     ### Calculate Transformation Matrices between World Frame and AFO Frame during the test
-    trueRefFrame = [Point(-81.969, -250.269, 56),#28.715), #Point(-80.236, 264.052, 28.715),
-                    Point(80.236, -264.052, 56),#28.715), #Point(81.969, 250.269, 28.715),
-                    Point(0, 0, 56)]#28.715)]
+    #trueRefFrame = [Point(81.969, 250.269, 56), Point(-80.236, 264.052, 56), Point(0, 0, 56)]
+
+    trueRefFrame = [Point(-80.236, 264.052, 56),  Point(0, 0, 56), Point(81.969, 250.269, 56)]
     t_Matrices = []     # Stores Transformation Matrices at each time-instances
     err_Terms = []      # Stores RMS-Error at each time-instances
     t_Inverse = []      # Stores Inverted Transformation Matrices for each time-instances
@@ -72,7 +75,8 @@ if __name__ == "__main__":
     for j in range(0, len(t_Inverse)):
         T_Inv = t_Inverse[j]
         tmpVal = fsrCoP[j]
-        p_afo = np.array([fsrCoP[j][0], fsrCoP[j][1], fsrCoP[j][2], 1])
+        p_afo = np.array([fsrCoP[j][0], fsrCoP[j][1], fsrCoP[j][2], 1]).reshape((-1,1))
+        #p_afo = np.array([fsrMkrCoP[j][0], fsrMkrCoP[j][1], fsrMkrCoP[j][2], 1]).reshape((-1, 1))
         #newPosition_FOUR_BY_ONE = np.dot(T_Inv, p_afo)#T_Inv.dot(p_afo)
         #newPosition_FOUR_BY_ONE = np.dot(t_Matrices[j], p_afo)
         newPosition_FOUR_BY_ONE = np.dot(np.identity(4),np.dot(t_Matrices[j], p_afo))
@@ -89,7 +93,7 @@ if __name__ == "__main__":
     print("")
 
 
-    ###  Put AFO position values into seperate lists corresponding to X, Y, & Z coordinates
+    ###  Put AFO-CoP position values into seperate lists corresponding to X, Y, & Z coordinates
     p_X = []
     p_Y = []
     p_Z = []
@@ -116,7 +120,7 @@ if __name__ == "__main__":
 
 
     ### Make subplots comparing CoP X, Y, Z coordinates between the AFO and Force-Plate Data
-    fig, ax = plt.subplots(3, 1, figsize=(9,3), sharex=True)
+    fig, ax = plt.subplots(3, 1, figsize=(9,5), sharex=True)
 
     ax[0].plot(p_X, color='blue', label='AFO')
     ax[0].plot(avgFCoP_X, color='red', label='Force-Plate')
@@ -130,6 +134,19 @@ if __name__ == "__main__":
     ax[2].plot(avgFCoP_Z, color='black', label='Force-Plate')
     ax[2].set_ylabel('Z-Coord')
     ax[2].legend()
-    plt.show()
 
+    #ax[0, 0].plot(p_X, color='blue', label='AFO')
+    #ax[0, 0].plot(avgFCoP_X, color='red', label='Force-Plate')
+    #ax[0, 0].set_ylabel('X-Coord')
+    #ax[0, 0].legend()
+    #ax[1, 0].plot(p_Y, color='green', label='AFO')
+    #ax[1, 0].plot(avgFCoP_Y, color='purple', label='Force-Plate')
+    #ax[1, 0].set_ylabel('Y-Coord')
+    #ax[1, 0].legend()
+    #ax[2, 0].plot(p_Z, color='orange', label='AFO')
+    #ax[2, 0].plot(avgFCoP_Z, color='black', label='Force-Plate')
+    #ax[2, 0].set_ylabel('Z-Coord')
+    #ax[2, 0].legend()
+
+    plt.show()
 

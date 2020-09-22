@@ -165,8 +165,6 @@ class Markers(object):
         markers = self.get_rigid_body("marker_names")
         fit, residual = fit_to_plane(markers)
 
-
-
         pass
 
 
@@ -362,7 +360,7 @@ class Markers(object):
         self._ax.set_xlabel('X Label')
         self._ax.set_ylabel('Y Label')
         self._ax.set_zlabel('Z Label')
-        self._ax.axis([-500, 500, -200, 3000])
+        self._ax.axis([-500, 100, -100, 500])
         self._ax.set_zlim3d(0, 1250)
         self._ax.scatter(x[frame], y[frame], z[frame], c='r', marker='o')
         if len(centers) > 0:
